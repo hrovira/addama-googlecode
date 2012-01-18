@@ -30,8 +30,9 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                 if (json && json.email) {
                     this.toolbar.add({ text: json.email, xtype: 'tbtext' });
                     if (json.isAdmin) {
-                        this.toolbar.add({ text: "Refresh UI Version", xtype: 'tbbutton',
-                            handler: function() {
+                        var refreshUI = new Ext.Action({
+                            text: 'Refresh UI Version',
+                            handler: function(){
                                 Ext.Ajax.request({
                                     url: "/addama/apps/refresh", method: "POST",
                                     success: function() {
@@ -40,6 +41,34 @@ org.systemsbiology.addama.js.TopBar = Ext.extend(Ext.util.Observable, {
                                 });
                             }
                         });
+                        var registerApplications = new Ext.Action({
+                            text: 'Register Applications',
+                            handler: function(){
+                                document.location = "/html/apps.html";
+                            }
+                        });
+
+                        var manageGreenlist = new Ext.Action({
+                            text: 'Manage User Access',
+                            handler: function(){
+                                document.location = "/html/greenlist.html";
+                            }
+                        });
+
+                        var appengineLink = new Ext.Action({
+                            text: "AppEngine Console",
+                            handler: function() {
+                                var app_id = document.location.hostname.replace(".appspot.com", "");
+                                document.location = "https://appengine.google.com/dashboard?&app_id=" + app_id;
+                            }
+                        })
+
+                        var adminMenu  = {
+                            text: "Administration",
+                            menu: [refreshUI,registerApplications,manageGreenlist]
+                        };
+                        
+                        this.toolbar.add(adminMenu);
                     }
                     this.toolbar.add({ text: 'Sign out', xtype: 'tbbutton',
                         handler:function() {
