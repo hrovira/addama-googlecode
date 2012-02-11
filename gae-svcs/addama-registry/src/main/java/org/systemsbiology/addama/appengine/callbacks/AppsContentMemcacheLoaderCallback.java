@@ -22,15 +22,29 @@ public class AppsContentMemcacheLoaderCallback implements MemcacheLoaderCallback
     private static final Logger log = Logger.getLogger(AppsContentMemcacheLoaderCallback.class.getName());
 
     private final String appsId;
+    private final boolean serveHomepage;
 
     public AppsContentMemcacheLoaderCallback(String appsId) {
+        this(appsId, false);
+    }
+
+    public AppsContentMemcacheLoaderCallback(String appsId, boolean serveHomepage) {
         this.appsId = appsId;
+        this.serveHomepage = serveHomepage;
     }
 
     public Serializable getCacheableObject(String contentUri) throws Exception {
         Entity e = getDatastoreService().get(createKey("apps-content", appsId));
-        String url = chomp(e.getProperty("url").toString(), "/");
 
+        if (serveHomepage) {
+            if (e.hasProperty("homepage")) {
+                contentUri = e.getProperty("homepage").toString();
+            } else {
+                contentUri = "index.html";
+            }
+        }
+
+        String url = chomp(e.getProperty("url").toString(), "/");
         URL contentUrl = new URL(url + contentUri);
         HTTPResponse resp = getURLFetchService().fetch(contentUrl);
         if (resp.getResponseCode() == SC_OK) {

@@ -13,9 +13,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.systemsbiology.addama.appengine.callbacks.AppsContentMemcacheLoaderCallback;
 import org.systemsbiology.addama.appengine.datastore.PutEntityTransactionCallback;
 import org.systemsbiology.addama.appengine.editors.JSONObjectPropertyEditor;
+import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 import org.systemsbiology.addama.commons.web.views.JsonItemsView;
 import org.systemsbiology.addama.commons.web.views.OkResponseView;
-import org.systemsbiology.addama.appengine.pojos.HTTPResponseContent;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,10 +26,10 @@ import static com.google.appengine.api.datastore.DatastoreServiceFactory.getData
 import static com.google.appengine.api.datastore.KeyFactory.createKey;
 import static com.google.appengine.api.memcache.MemcacheServiceFactory.getMemcacheService;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 import static org.systemsbiology.addama.appengine.datastore.DatastoreServiceTemplate.inTransaction;
 import static org.systemsbiology.addama.appengine.memcache.MemcacheServiceTemplate.loadIfNotExisting;
 import static org.systemsbiology.addama.appengine.pojos.HTTPResponseContent.serveContent;
+import static org.systemsbiology.addama.appengine.util.Users.checkAdmin;
 
 /**
  * @author hrovira
@@ -59,6 +59,11 @@ public class AppsController {
             item.put("uri", "/addama/apps/" + id);
             item.put("label", e.getProperty("label").toString());
             item.put("url", e.getProperty("url").toString());
+            if (e.hasProperty("homepage")) {
+                item.put("homepage", e.getProperty("homepage").toString());
+            } else {
+                item.put("homepage", "index.html");
+            }
             if (e.hasProperty("logo")) item.put("logo", e.getProperty("logo").toString());
             if (e.hasProperty("description")) item.put("description", e.getProperty("description").toString());
             json.append("items", item);
@@ -70,12 +75,9 @@ public class AppsController {
     protected ModelAndView fetchApp(HttpServletRequest request, HttpServletResponse response,
                                     @PathVariable("appsId") String appsId) throws Exception {
         log.info(appsId);
-        AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId);
+        AppsContentMemcacheLoaderCallback callback = new AppsContentMemcacheLoaderCallback(appsId, true);
         MemcacheService appsContent = getMemcacheService("apps-content." + appsId);
-        HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/index.html", callback);
-        if (content == null) {
-            content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
-        }
+        HTTPResponseContent content = (HTTPResponseContent) loadIfNotExisting(appsContent, "/", callback);
         serveContent(content, request, response);
         return new ModelAndView(new OkResponseView());
     }
@@ -102,6 +104,7 @@ public class AppsController {
         e.setProperty("url", url.toString());
         if (app.has("description")) e.setProperty("description", app.getString("description"));
         if (app.has("logo")) e.setProperty("logo", app.getString("logo"));
+        if (app.has("homepage")) e.setProperty("homepage", app.getString("homepage"));
 
         inTransaction(datastore, new PutEntityTransactionCallback(e));
         return new ModelAndView(new OkResponseView());

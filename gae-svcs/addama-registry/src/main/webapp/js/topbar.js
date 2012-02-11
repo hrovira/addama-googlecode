@@ -284,6 +284,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                 {name: "id"},
                 {name: "label"},
                 {name: "url"},
+                {name: "homepage"},
                 {name: "logo"},
                 {name: "description"}
             ]
@@ -297,6 +298,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                 { header: "ID", width: 75, sortable: true, dataIndex: "id" },
                 { header: "Label", width: 120, sortable: true, dataIndex: "label" },
                 { header: "URL", width: 200, sortable: true, dataIndex: "url" },
+                { header: "Home Page", width: 100, sortable: true, dataIndex: "homepage" },
                 { header: "Logo", width: 100, sortable: true, dataIndex: "logo" },
                 { header: "Description", width: 300, sortable: true, dataIndex: "description" }
             ]
@@ -314,7 +316,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                 if (json && json.items) {
                     var data = [];
                     Ext.each(json.items, function(item) {
-                        data.push([ item.id, item.label, item.url, item.logo, item.description ]);
+                        data.push([ item.id, item.label, item.url, item.homepage, item.logo, item.description ]);
                     });
                     this.store.loadData(data);
                 } else {
@@ -332,6 +334,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
         var fldId = new Ext.form.TextField({ name: "id", fieldLabel: "Application ID" });
         var fldLabel = new Ext.form.TextField({ name: "label", fieldLabel: "Label" });
         var fldUrl = new Ext.form.TextField({ name: "url", fieldLabel: "Root Content URL" });
+        var fldHomepage = new Ext.form.TextField({ name: "homepage", fieldLabel: "Home Page" });
         var fldLogo = new Ext.form.TextField({ name: "logo", fieldLabel: "Application Logo" });
         var fldDescription = new Ext.form.TextField({ name: "description", fieldLabel: "Description" });
 
@@ -351,7 +354,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
             region:"center",
             width: 400,
             defaults: { anchor: "100%", labelSeparator: "" },
-            items: [ fldId, fldLabel, fldUrl, fldLogo, fldDescription ],
+            items: [ fldId, fldLabel, fldUrl, fldHomepage, fldLogo, fldDescription ],
             buttons: [
                 {
                     text: "Preview",
@@ -375,6 +378,7 @@ org.systemsbiology.addama.js.topbar.RegisterAppsWindow = Ext.extend(Object, {
                             id: fldId.getRawValue(),
                             label: newLabel,
                             url: fldUrl.getRawValue(),
+                            homepage: fldHomepage.getRawValue(),
                             logo: fldLogo.getRawValue(),
                             description: fldDescription.getRawValue()
                         };
